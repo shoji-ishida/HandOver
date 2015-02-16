@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -30,7 +31,10 @@ public class HandOver {
     }
 
     public void activityChanged() {
-
+        if (handOverService == null) { // bind to service first
+            Intent intent = new Intent(HandOverService.class.getName());
+            activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
     }
 
 
@@ -41,6 +45,10 @@ public class HandOver {
     private IHandOverCallback handOverCallback = new IHandOverCallback.Stub() {
         @Override
         public void handleHandOver() throws RemoteException {
+            if (callback != null) {
+                callback.saveActivity(dictionary);
+                handOverService.handOver(activity.getLocalClassName(), dictionary);
+            }
         }
     };
 
