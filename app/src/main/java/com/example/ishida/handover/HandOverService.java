@@ -39,7 +39,7 @@ public class HandOverService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_ON);
         registerReceiver(screenStatusReceiver, filter);
 
-        // start HandOver Gatt service
+        // initialize
 
 
     }
