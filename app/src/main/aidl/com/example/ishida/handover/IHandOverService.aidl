@@ -16,6 +16,6 @@ interface IHandOverService {
 
     oneway void unregisterCallback(IHandOverCallback callback);
 
-
+    oneway void handOver(String activityName, in Map dictionary);
 
 }

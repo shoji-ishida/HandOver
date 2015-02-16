@@ -12,8 +12,10 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.Map;
 
-public class MainActivity extends ActionBarActivity {
+
+public class MainActivity extends ActionBarActivity implements HandOverCallback {
     private static final String TAG = "HandOver Demo";
 
     private EditText editText;
@@ -65,5 +67,15 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void saveActivity(Map<String, Object> dictionary) {
+
+    }
+
+    @Override
+    public void restoreActivity(Map<String, Object> dictionary) {
+
     }
 }
