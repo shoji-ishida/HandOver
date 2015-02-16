@@ -49,7 +49,7 @@ public class HandOverService extends Service {
         registerReceiver(screenStatusReceiver, filter);
 
         // initialize
-        bTManager = (BluetoothManager) getSystemService(Context.BATTERY_SERVICE);
+        bTManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bTAdapter = bTManager.getAdapter();
         myAddr = bTAdapter.getAddress();
 
