@@ -2,16 +2,46 @@ package com.example.ishida.handover;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.EditorInfo;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+    private static final String TAG = "HandOver Demo";
+
+    private EditText editText;
+    private Switch sw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        editText = (EditText)findViewById(R.id.editText);
+        editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                Log.d(TAG, "aId=" + actionId + ", " + event);
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    // call handover here
+                }
+                return false;
+            }
+        });
+        sw = (Switch)findViewById(R.id.switch1);
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // call handover here
+            }
+        });
     }
 
 
