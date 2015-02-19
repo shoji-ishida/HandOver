@@ -23,6 +23,8 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     private EditText editText;
     private Switch sw;
 
+    private HandOver ho;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +37,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
                 Log.d(TAG, "aId=" + actionId + ", " + event);
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     // call handover here
+                    ho.activityChanged();
                 }
                 return false;
             }
@@ -44,8 +47,12 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // call handover here
+                ho.activityChanged();
             }
         });
+
+        ho = HandOver.getHandOver(this);
+        ho.registerCallback(this);
     }
 
 

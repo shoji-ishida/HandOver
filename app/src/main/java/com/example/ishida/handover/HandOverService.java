@@ -9,10 +9,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.util.Map;
 
-public class HandOverService extends Service {
+public class HandOverService extends Service implements HandOverGattServerCallback{
+
     private static final String TAG = HandOverService.class.getSimpleName();
 
     // assumes BT MAC addrs are exchanged wither by Nfc or BLE adv.
@@ -25,7 +27,9 @@ public class HandOverService extends Service {
     private BluetoothManager bTManager;
     private BluetoothAdapter bTAdapter;
     private String myAddr;
+    private IHandOverCallback callback = null;
 
+    private HandOverGattServer gattServer;
 
     private BroadcastReceiver screenStatusReceiver = new BroadcastReceiver() {
         @Override
@@ -49,17 +53,27 @@ public class HandOverService extends Service {
 
         @Override
         public void registerCallback(IHandOverCallback callback) throws RemoteException {
-
+            HandOverService.this.callback = callback;
         }
 
         @Override
         public void unregisterCallback(IHandOverCallback callback) throws RemoteException {
-
+            if (callback != null && callback.equals(callback)) {
+                HandOverService.this.callback = null;
+            }
         }
 
         @Override
         public void handOver(String activityName, Map dictionary) throws RemoteException {
+            Log.d(TAG, activityName + ": " + dictionary);
 
+
+        }
+
+        @Override
+        public void activityChanged() throws RemoteException {
+            // start GATT server
+            gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
         }
     };
 
@@ -100,6 +114,17 @@ public class HandOverService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         return super.onUnbind(intent);
+    }
+
+    @Override
+    public void gattServerReady() {
+        if (callback != null) {
+            try {
+                callback.handleHandOver();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void startScan() {

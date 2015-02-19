@@ -18,4 +18,6 @@ interface IHandOverService {
 
     oneway void handOver(String activityName, in Map dictionary);
 
+    oneway void activityChanged();
+
 }

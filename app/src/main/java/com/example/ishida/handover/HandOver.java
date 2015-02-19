@@ -35,6 +35,11 @@ public class HandOver {
             Intent intent = new Intent(HandOverService.class.getName());
             activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
         }
+        try {
+            handOverService.activityChanged();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -56,10 +61,20 @@ public class HandOver {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             handOverService = IHandOverService.Stub.asInterface(service);
+            try {
+                handOverService.registerCallback(handOverCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            try {
+                handOverService.unregisterCallback(handOverCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             handOverService = null;
         }
     };

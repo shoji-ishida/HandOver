@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -38,13 +39,13 @@ class HandOverGattServer {
     private BluetoothGattServer gattServer;
     private Context context;
     private String activityName;
+    private Map<String, Object> dictionary;
 
 
-    public HandOverGattServer(Context context, BluetoothManager manager, BluetoothAdapter adapter, String activity) {
+    public HandOverGattServer(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
         this.context = context;
         this.bTManager = manager;
         this.bTAdapter = adapter;
-        this.activityName = activity;
 
         init();
     }
@@ -107,6 +108,8 @@ class HandOverGattServer {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     Log.d(TAG, "onServiceAdded: status=GATT_SUCCESS service="
                             + service.getUuid().toString());
+                    // call callback here
+                    ((HandOverService)context).gattServerReady();
                 } else {
                     Log.d(TAG, "onServiceAdded: status!=GATT_SUCCESS");
                 }
