@@ -23,6 +23,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Created by ishida on 2015/02/19.
@@ -106,18 +107,19 @@ public class HandOverGatt {
                     String str = characteristic.getStringValue(0);
                     Log.d(TAG, str);
                     activityName = str;
+                    readCharacteristics(gatt, HandOverGattServer.field2_characteristic_uuid);
                 } else if (characteristic.getUuid().equals(HandOverGattServer.field2_characteristic_uuid)) {
                     String str = characteristic.getStringValue(0);
                     Log.d(TAG, str);
                     dictionary.put("edit_text", str);
+                    readCharacteristics(gatt, HandOverGattServer.field3_characteristic_uuid);
                 } else if (characteristic.getUuid().equals(HandOverGattServer.field3_characteristic_uuid)) {
                     Integer i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                     boolean sw = (i.intValue() == 1) ? true : false;
                     Log.d(TAG, Boolean.valueOf(sw).toString());
                     dictionary.put("switch", sw);
+                    postNotification();
                 }
-
-                postNotification();
             }
 
             @Override
@@ -130,6 +132,16 @@ public class HandOverGatt {
                 Log.d(TAG, "onCharacteristicChanged: ");
             }
         };
+    }
+
+    private void readCharacteristics(BluetoothGatt gatt, UUID uuid) {
+        BluetoothGattService service = gatt.getService(HandOverGattServer.service_uuid);
+        if (service != null) {
+            BluetoothGattCharacteristic characteristic = service.getCharacteristic(uuid);
+            if (characteristic != null) {
+                gatt.readCharacteristic(characteristic);
+            }
+        }
     }
 
     public void connectGatt(final BluetoothDevice device) {
