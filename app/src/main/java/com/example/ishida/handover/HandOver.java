@@ -24,6 +24,7 @@ public class HandOver {
     private Map<String, Object> dictionary;
     private HandOverCallback callback = null;
     private IHandOverService handOverService;
+    private boolean needToSave = false;
 
     private HandOver(Activity activity) {
         this.activity = activity;
@@ -32,13 +33,16 @@ public class HandOver {
 
     public void activityChanged() {
         if (handOverService == null) { // bind to service first
-            Intent intent = new Intent(HandOverService.class.getName());
+            Intent intent = new Intent(activity, HandOverService.class);
             activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        }
-        try {
-            handOverService.activityChanged();
-        } catch (RemoteException e) {
-            e.printStackTrace();
+            needToSave = true;
+        } else {
+            try {
+                needToSave = false;
+                handOverService.activityChanged();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -47,12 +51,16 @@ public class HandOver {
         this.callback = callback;
     }
 
+    public void unbind() {
+        activity.unbindService(serviceConnection);
+    }
+
     private IHandOverCallback handOverCallback = new IHandOverCallback.Stub() {
         @Override
         public void handleHandOver() throws RemoteException {
             if (callback != null) {
                 callback.saveActivity(dictionary);
-                handOverService.handOver(activity.getLocalClassName(), dictionary);
+                handOverService.handOver(activity.getComponentName().getClassName(), dictionary);
             }
         }
     };
@@ -63,6 +71,10 @@ public class HandOver {
             handOverService = IHandOverService.Stub.asInterface(service);
             try {
                 handOverService.registerCallback(handOverCallback);
+                if (needToSave) {
+                    handOverService.activityChanged();
+                }
+
             } catch (RemoteException e) {
                 e.printStackTrace();
             }

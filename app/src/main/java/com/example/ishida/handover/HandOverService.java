@@ -66,7 +66,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
         @Override
         public void handOver(String activityName, Map dictionary) throws RemoteException {
             Log.d(TAG, activityName + ": " + dictionary);
-
+            gattServer.setData(activityName, dictionary);
 
         }
 
@@ -74,6 +74,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
         public void activityChanged() throws RemoteException {
             // start GATT server
             gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
+            gattServer.startGattServer();
         }
     };
 
@@ -113,6 +114,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
 
     @Override
     public boolean onUnbind(Intent intent) {
+        // should clean up gatt server
         return super.onUnbind(intent);
     }
 

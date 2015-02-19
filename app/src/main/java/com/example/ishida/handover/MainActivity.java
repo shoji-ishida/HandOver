@@ -55,6 +55,12 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
         ho.registerCallback(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ho.unbind();
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

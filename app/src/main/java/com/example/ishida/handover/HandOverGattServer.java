@@ -26,10 +26,10 @@ import java.util.UUID;
 class HandOverGattServer {
     private static final String TAG = HandOverGattServer.class.getSimpleName();
 
-    private static final UUID service_uuid = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
-    private static final UUID field1_characteristic_uuid = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
-    private static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb");
-    private static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb");
+    static final UUID service_uuid = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
+    static final UUID field1_characteristic_uuid = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
+    static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb");
+    static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb");
 
 
     private AdvertiseCallback advCallback;
@@ -48,6 +48,11 @@ class HandOverGattServer {
         this.bTAdapter = adapter;
 
         init();
+    }
+
+    public void setData(String activity, Map<String, Object> map) {
+        this.activityName = activity;
+        this.dictionary = map;
     }
 
     private void init() {
