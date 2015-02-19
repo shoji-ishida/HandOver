@@ -8,8 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
+import android.os.RemoteException;
 
-class HandOverService extends Service {
+import java.util.Map;
+
+public class HandOverService extends Service {
     private static final String TAG = HandOverService.class.getSimpleName();
 
     // assumes BT MAC addrs are exchanged wither by Nfc or BLE adv.
@@ -35,6 +38,28 @@ class HandOverService extends Service {
                 // ON
                 // start scanning;
             }
+        }
+    };
+
+    private IHandOverService.Stub stub = new IHandOverService.Stub() {
+        @Override
+        public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
+
+        }
+
+        @Override
+        public void registerCallback(IHandOverCallback callback) throws RemoteException {
+
+        }
+
+        @Override
+        public void unregisterCallback(IHandOverCallback callback) throws RemoteException {
+
+        }
+
+        @Override
+        public void handOver(String activityName, Map dictionary) throws RemoteException {
+
         }
     };
 
@@ -69,8 +94,7 @@ class HandOverService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+        return stub;
     }
 
     @Override
