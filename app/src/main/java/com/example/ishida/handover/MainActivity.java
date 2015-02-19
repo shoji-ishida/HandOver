@@ -56,7 +56,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
 
         String action = getIntent().getAction();
         if (action.equals("com.example.ishida.handover.RECOVER")) {
-
+            ho.restore();
         }
     }
 
