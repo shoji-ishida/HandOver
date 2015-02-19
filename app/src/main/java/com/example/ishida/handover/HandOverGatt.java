@@ -1,6 +1,7 @@
 package com.example.ishida.handover;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -21,7 +22,7 @@ public class HandOverGatt {
     private BluetoothManager bTManager;
     private BluetoothAdapter bTAdapter;
     private BluetoothGatt bluetoothGatt;
-    BluetoothGattCallback gattCallback;
+    private BluetoothGattCallback gattCallback;
     private Context context;
 
     public HandOverGatt(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
@@ -72,6 +73,8 @@ public class HandOverGatt {
             @Override
             public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                 Log.d(TAG, "onCharacteristicRead: ");
+                String str = characteristic.getStringValue(0);
+                Log.d(TAG, str);
             }
 
             @Override
@@ -84,5 +87,10 @@ public class HandOverGatt {
                 Log.d(TAG, "onCharacteristicChanged: ");
             }
         };
+    }
+
+    public void connectGatt(final BluetoothDevice device) {
+        Log.d(TAG, "Connecting to " + device.getName());
+        bluetoothGatt = device.connectGatt(context, false, gattCallback);
     }
 }

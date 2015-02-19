@@ -2,6 +2,7 @@ package com.example.ishida.handover;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +31,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     private IHandOverCallback callback = null;
 
     private HandOverGattServer gattServer;
+    private HandOverGatt bluetoothGatt;
 
     private BroadcastReceiver screenStatusReceiver = new BroadcastReceiver() {
         @Override
@@ -38,9 +40,13 @@ public class HandOverService extends Service implements HandOverGattServerCallba
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 // OFF
                 // stop scanning
+                Log.d(TAG, "Screen off");
+                stopScan();
             } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 // ON
                 // start scanning;
+                Log.d(TAG, "Screen on");
+                startScan();
             }
         }
     };
@@ -93,11 +99,12 @@ public class HandOverService extends Service implements HandOverGattServerCallba
         bTAdapter = bTManager.getAdapter();
         myAddr = bTAdapter.getAddress();
 
-
+        Log.d(TAG, "Initialized");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "start command");
         return START_STICKY;
     }
 
@@ -132,9 +139,16 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     private void startScan() {
         // scan HandOver host
         // scan BLE adv. or paired device
+        bluetoothGatt = new HandOverGatt(this, bTManager, bTAdapter);
+        for (String mac : addrs) {
+            if (mac.equals(myAddr)) continue;
+            BluetoothDevice device = bTAdapter.getRemoteDevice(mac);
+            bluetoothGatt.connectGatt(device);
+        }
     }
 
     private void stopScan() {
         // stop on going scan
+        bluetoothGatt = null;
     }
 }

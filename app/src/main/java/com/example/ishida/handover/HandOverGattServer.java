@@ -127,7 +127,7 @@ class HandOverGattServer {
                 Log.d(TAG, "uuid: " + characteristic.getUuid().toString());
                 if (characteristic.getUuid().equals(field1_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field1");
-                    characteristic.setValue("Vow");
+                    characteristic.setValue(activityName);
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 } else if (characteristic.getUuid().equals(field2_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field2");
