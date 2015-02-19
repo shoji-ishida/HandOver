@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
-public class HandOverService extends Service {
+class HandOverService extends Service {
     private static final String TAG = HandOverService.class.getSimpleName();
 
     // assumes BT MAC addrs are exchanged wither by Nfc or BLE adv.
@@ -58,7 +58,7 @@ public class HandOverService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Override

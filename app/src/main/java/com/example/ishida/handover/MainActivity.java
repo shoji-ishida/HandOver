@@ -17,6 +17,8 @@ import java.util.Map;
 
 public class MainActivity extends ActionBarActivity implements HandOverCallback {
     private static final String TAG = "HandOver Demo";
+    private static final String EDIT_TEXT = "edit_text";
+    private static final String SWITCH = "switch";
 
     private EditText editText;
     private Switch sw;
@@ -71,11 +73,15 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
 
     @Override
     public void saveActivity(Map<String, Object> dictionary) {
-
+        // save Objects to handover
+        dictionary.put(EDIT_TEXT, editText.getText().toString());
+        dictionary.put(SWITCH, sw.isChecked());
     }
 
     @Override
     public void restoreActivity(Map<String, Object> dictionary) {
-
+        // restore handover'ed objects
+        String text = (String) dictionary.get(EDIT_TEXT);
+        boolean checked = (boolean) dictionary.get(SWITCH);
     }
 }
