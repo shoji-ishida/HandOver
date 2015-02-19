@@ -25,6 +25,7 @@ public class HandOver {
     private HandOverCallback callback = null;
     private IHandOverService handOverService;
     private boolean needToSave = false;
+    private boolean needToRestore = false;
 
     private HandOver(Activity activity) {
         this.activity = activity;
@@ -46,13 +47,29 @@ public class HandOver {
         }
     }
 
+    public void restore() {
+        if (handOverService == null) { // bind to service first
+            Intent intent = new Intent(activity, HandOverService.class);
+            activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+            needToRestore = true;
+        } if (callback != null) {
+            try {
+                callback.restoreActivity(handOverService.readDictionary());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public void registerCallback(HandOverCallback callback) {
         this.callback = callback;
     }
 
     public void unbind() {
-        activity.unbindService(serviceConnection);
+        if (handOverService != null) {
+            activity.unbindService(serviceConnection);
+        }
     }
 
     private IHandOverCallback handOverCallback = new IHandOverCallback.Stub() {
@@ -72,7 +89,12 @@ public class HandOver {
             try {
                 handOverService.registerCallback(handOverCallback);
                 if (needToSave) {
+                    needToSave = false;
                     handOverService.activityChanged();
+                }
+                if (needToRestore) {
+                    needToRestore = false;
+                    restore();
                 }
 
             } catch (RemoteException e) {

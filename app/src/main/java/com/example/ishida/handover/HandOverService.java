@@ -82,6 +82,14 @@ public class HandOverService extends Service implements HandOverGattServerCallba
             gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
             gattServer.startGattServer();
         }
+
+        @Override
+        public Map readDictionary() throws RemoteException {
+            if (bluetoothGatt != null) {
+                return bluetoothGatt.dictionary;
+            }
+            return null;
+        }
     };
 
     @Override
@@ -111,6 +119,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "Destroyed");
         unregisterReceiver(screenStatusReceiver);
     }
 
@@ -149,6 +158,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
 
     private void stopScan() {
         // stop on going scan
+        bluetoothGatt.closeGatt();
         bluetoothGatt = null;
     }
 }

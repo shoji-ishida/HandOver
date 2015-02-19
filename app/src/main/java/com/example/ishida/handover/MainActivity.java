@@ -53,6 +53,11 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
 
         ho = HandOver.getHandOver(this);
         ho.registerCallback(this);
+
+        String action = getIntent().getAction();
+        if (action.equals("com.example.ishida.handover.RECOVER")) {
+
+        }
     }
 
     @Override
@@ -94,7 +99,13 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     @Override
     public void restoreActivity(Map<String, Object> dictionary) {
         // restore handover'ed objects
-        String text = (String) dictionary.get(EDIT_TEXT);
-        boolean checked = (boolean) dictionary.get(SWITCH);
+        final String text = (String) dictionary.get(EDIT_TEXT);
+        final boolean checked = (boolean) dictionary.get(SWITCH);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                sw.setChecked(checked);
+            }
+        });
     }
 }

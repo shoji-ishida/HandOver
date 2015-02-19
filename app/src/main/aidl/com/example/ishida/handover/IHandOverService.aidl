@@ -20,4 +20,6 @@ interface IHandOverService {
 
     oneway void activityChanged();
 
+    Map readDictionary();
+
 }
