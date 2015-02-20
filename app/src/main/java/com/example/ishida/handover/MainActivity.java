@@ -74,7 +74,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
                     }
                 }
                 if (!unfixed) {
-                    Log.d(TAG, "Confimred");
+                    Log.d(TAG, "Confirmed");
                     ho.activityChanged();
                 }
             }
