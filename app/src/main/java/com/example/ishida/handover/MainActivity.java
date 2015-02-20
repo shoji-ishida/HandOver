@@ -1,5 +1,6 @@
 package com.example.ishida.handover;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +30,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG, "onCreate");
 
         editText = (EditText)findViewById(R.id.editText);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -51,6 +53,11 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
             }
         });
 
+
+        // for the testing purpose, we start a service here
+        Intent serviceIntent = new Intent(this, HandOverService.class);
+        this.startService(serviceIntent);
+
         ho = HandOver.getHandOver(this);
         ho.registerCallback(this);
 
@@ -61,9 +68,40 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop");
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy");
         ho.unbind();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: " + getIntent());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart");
     }
 
 
@@ -92,7 +130,9 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     @Override
     public void saveActivity(Map<String, Object> dictionary) {
         // save Objects to handover
+        Log.d(TAG, "text = " + editText.getText().toString());
         dictionary.put(EDIT_TEXT, editText.getText().toString());
+        Log.d(TAG, "switch = " + sw.isChecked());
         dictionary.put(SWITCH, sw.isChecked());
     }
 
@@ -104,6 +144,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                editText.setText(text, TextView.BufferType.NORMAL);
                 sw.setChecked(checked);
             }
         });

@@ -22,6 +22,8 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     private static final String addrs[] = {
         "F0:6B:CA:35:96:EC", // Galaxy S4
         "50:A4:C8:93:5C:CE", // Galaxy S3
+        "18:E2:C2:7A:8F:7B", // Galaxuy S3 GT-I9300
+        "10:68:3F:E1:9E:E7", // Nexus 4
 
     };
 
@@ -79,8 +81,12 @@ public class HandOverService extends Service implements HandOverGattServerCallba
         @Override
         public void activityChanged() throws RemoteException {
             // start GATT server
-            gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
-            gattServer.startGattServer();
+            if (gattServer == null) {
+                gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
+                gattServer.startGattServer();
+            } else { // gatt server already running
+                gattServerReady();
+            }
         }
 
         @Override
@@ -158,7 +164,9 @@ public class HandOverService extends Service implements HandOverGattServerCallba
 
     private void stopScan() {
         // stop on going scan
-        bluetoothGatt.closeGatt();
-        bluetoothGatt = null;
+        if (bluetoothGatt != null) {
+            bluetoothGatt.closeGatt();
+            bluetoothGatt = null;
+        }
     }
 }

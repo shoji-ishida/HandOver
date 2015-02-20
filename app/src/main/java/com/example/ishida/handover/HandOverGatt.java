@@ -1,5 +1,6 @@
 package com.example.ishida.handover;
 
+import android.app.ActivityManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -11,6 +12,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -78,23 +80,6 @@ public class HandOverGatt {
                         }
                     }
 
-                    /*
-                    List<BluetoothGattService> services = gatt.getServices();
-                    for (BluetoothGattService service: services) {
-                        Log.d(TAG, service.getUuid().toString());
-                        if (service.getUuid().equals(HandOverGattServer.service_uuid)) {
-                            BluetoothGattCharacteristic characteristic = service.getCharacteristic(HandOverGattServer.field1_characteristic_uuid);
-                            if (characteristic != null) {
-                                Log.d(TAG, "Found Characteristic 1");
-                                gatt.readCharacteristic(characteristic);
-                                int prop = characteristic.getProperties();
-                                if ((prop | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                                    gatt.setCharacteristicNotification(characteristic, true);
-                                }
-                            }
-                        }
-                    }
-                    */
                 } else {
                     Log.d(TAG, "stat = " + status);
                 }
@@ -162,8 +147,13 @@ public class HandOverGatt {
         Intent resultIntent = new Intent();
         resultIntent.setClassName(context, activityName);
         resultIntent.setAction("com.example.ishida.handover.RECOVER");
-
         PackageManager pm = context.getPackageManager();
+        ComponentName componentName = resultIntent.resolveActivity(pm);
+        if (checkRunningAppProcess(componentName.getPackageName())) {
+
+            return;
+        }
+
         Drawable icon = null;
         CharSequence chars = null;
         // Should add Icon and Label of activity to launch
@@ -198,5 +188,21 @@ public class HandOverGatt {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         // mId allows you to update the notification later on.
         mNotificationManager.notify(mId, mBuilder.build());
+    }
+
+    private boolean checkRunningAppProcess(String target){
+
+        ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> processInfoList = am.getRunningAppProcesses();
+        for( ActivityManager.RunningAppProcessInfo info : processInfoList){
+            if(info.processName.equals(target)){
+                if( info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND){
+                    // app is FOREGROUND
+                    Log.d(TAG,"app is FOREGROUND");
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

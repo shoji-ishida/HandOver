@@ -132,12 +132,14 @@ class HandOverGattServer {
                 } else if (characteristic.getUuid().equals(field2_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field2");
                     String str = (String) dictionary.get("edit_text");
+                    Log.d(TAG, "edit_text = " + str);
                     characteristic.setValue(str);
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 } else if (characteristic.getUuid().equals(field3_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field3");
                     boolean sw = (boolean) dictionary.get("switch");
                     int i = sw ? 1 : 0;
+                    Log.d(TAG, "switch = " + i);
                     characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 }
@@ -148,8 +150,6 @@ class HandOverGattServer {
                 Log.d(TAG, "onCharacteristicWriteRequest: requestId=" + requestId + " preparedWrite="
                         + Boolean.toString(preparedWrite) + " responseNeeded="
                         + Boolean.toString(responseNeeded) + " offset=" + offset);
-
-
 
             }
 

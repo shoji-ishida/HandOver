@@ -52,7 +52,7 @@ public class HandOver {
             Intent intent = new Intent(activity, HandOverService.class);
             activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
             needToRestore = true;
-        } if (callback != null) {
+        } else if (callback != null) {
             try {
                 callback.restoreActivity(handOverService.readDictionary());
             } catch (RemoteException e) {
@@ -76,6 +76,7 @@ public class HandOver {
         @Override
         public void handleHandOver() throws RemoteException {
             if (callback != null) {
+                dictionary.clear();
                 callback.saveActivity(dictionary);
                 handOverService.handOver(activity.getComponentName().getClassName(), dictionary);
             }
