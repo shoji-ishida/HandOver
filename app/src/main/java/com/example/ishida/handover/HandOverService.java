@@ -22,8 +22,8 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     private static final String addrs[] = {
         "F0:6B:CA:35:96:EC", // Galaxy S4
         "50:A4:C8:93:5C:CE", // Galaxy S3
-        "18:E2:C2:7A:8F:7B", // Galaxuy S3 GT-I9300
-        "10:68:3F:E1:9E:E7", // Nexus 4
+        //"18:E2:C2:7A:8F:7B", // Galaxuy S3 GT-I9300
+        //"10:68:3F:E1:9E:E7", // Nexus 4
 
     };
 
@@ -54,10 +54,6 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     };
 
     private IHandOverService.Stub stub = new IHandOverService.Stub() {
-        @Override
-        public void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat, double aDouble, String aString) throws RemoteException {
-
-        }
 
         @Override
         public void registerCallback(IHandOverCallback callback) throws RemoteException {
@@ -148,6 +144,19 @@ public class HandOverService extends Service implements HandOverGattServerCallba
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void restoreReady(Map<String, Object> dictionary) {
+        if (callback != null) {
+            Log.d(TAG, "call handleRestore");
+            try {
+                callback.handleRestore(dictionary);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.d(TAG, "callback is null");
         }
     }
 

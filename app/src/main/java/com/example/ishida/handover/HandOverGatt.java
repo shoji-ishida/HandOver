@@ -147,10 +147,15 @@ public class HandOverGatt {
         Intent resultIntent = new Intent();
         resultIntent.setClassName(context, activityName);
         resultIntent.setAction("com.example.ishida.handover.RECOVER");
+
+        // see if a target app is foreground
+        // we must handle app is foreground but Activity here
+        // in such case directory send Intent
+        // otherwise Post Notification
         PackageManager pm = context.getPackageManager();
         ComponentName componentName = resultIntent.resolveActivity(pm);
         if (checkRunningAppProcess(componentName.getPackageName())) {
-
+            ((HandOverService)context).restoreReady(dictionary);
             return;
         }
 

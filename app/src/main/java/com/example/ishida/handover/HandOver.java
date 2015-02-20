@@ -81,6 +81,14 @@ public class HandOver {
                 handOverService.handOver(activity.getComponentName().getClassName(), dictionary);
             }
         }
+
+        @Override
+        public void handleRestore(Map dictionary) throws RemoteException {
+            if (callback != null) {
+                callback.restoreActivity(dictionary);
+            }
+        }
+
     };
 
     private ServiceConnection serviceConnection = new ServiceConnection() {

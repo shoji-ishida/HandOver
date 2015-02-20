@@ -6,4 +6,6 @@ package com.example.ishida.handover;
 interface IHandOverCallback {
 
     void handleHandOver();
+
+    void handleRestore(in Map dictionary);
 }
