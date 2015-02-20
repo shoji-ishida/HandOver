@@ -3,6 +3,8 @@ package com.example.ishida.handover;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -37,13 +39,47 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 Log.d(TAG, "aId=" + actionId + ", " + event);
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_GO) {
                     // call handover here
                     ho.activityChanged();
                 }
                 return false;
             }
         });
+
+        editText.addTextChangedListener(new TextWatcher() {
+            int currentLength = 0;
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                currentLength = s.toString().length();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //Log.d(TAG, "after:" + s.toString());
+                if (s.toString().length() < currentLength) {
+                    return;
+                }
+                boolean unfixed = false;
+                Object[] spanned = s.getSpans(0, s.length(), Object.class);
+                if (spanned != null) {
+                    for (Object obj : spanned) {
+                        if (obj instanceof android.text.style.UnderlineSpan) {
+                            unfixed = true;
+                        }
+                    }
+                }
+                if (!unfixed) {
+                    Log.d(TAG, "Confimred");
+                    ho.activityChanged();
+                }
+            }
+        });
+
         sw = (Switch)findViewById(R.id.switch1);
         sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
