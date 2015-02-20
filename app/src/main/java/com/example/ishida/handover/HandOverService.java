@@ -14,7 +14,7 @@ import android.util.Log;
 
 import java.util.Map;
 
-public class HandOverService extends Service implements HandOverGattServerCallback{
+public class HandOverService extends Service {
 
     private static final String TAG = HandOverService.class.getSimpleName();
 
@@ -22,7 +22,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
     private static final String addrs[] = {
         "F0:6B:CA:35:96:EC", // Galaxy S4
         "50:A4:C8:93:5C:CE", // Galaxy S3
-        //"18:E2:C2:7A:8F:7B", // Galaxuy S3 GT-I9300
+        //"18:E2:C2:7A:8F:7B", // Galaxy S3 GT-I9300
         //"10:68:3F:E1:9E:E7", // Nexus 4
 
     };
@@ -136,8 +136,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
         return super.onUnbind(intent);
     }
 
-    @Override
-    public void gattServerReady() {
+    void gattServerReady() {
         if (callback != null) {
             try {
                 callback.handleHandOver();
@@ -147,7 +146,7 @@ public class HandOverService extends Service implements HandOverGattServerCallba
         }
     }
 
-    public void restoreReady(Map<String, Object> dictionary) {
+    void restoreReady(Map<String, Object> dictionary) {
         if (callback != null) {
             Log.d(TAG, "call handleRestore");
             try {
