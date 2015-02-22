@@ -31,6 +31,14 @@ class HandOverGattServer {
     static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb");
     static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb");
 
+    enum DataType {
+        BOOLEAN,
+        SHORT,
+        INT,
+        LONG,
+        STRING,
+    }
+
 
     private AdvertiseCallback advCallback;
     private BluetoothGattServerCallback gattCallback;
@@ -73,6 +81,8 @@ class HandOverGattServer {
             return;
         }
 
+        // This should be enabled when BLE adv above Lollipop is supported
+
         // BT LE adv check
         //if (!bTAdapter.isMultipleAdvertisementSupported()) {
         //    Toast.makeText(context, R.string.ble_adv_not_supported, Toast.LENGTH_SHORT).show();
@@ -101,9 +111,9 @@ class HandOverGattServer {
             public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
                 Log.d(TAG, "onConnectionStateChange: " + device.getName() + " status=" + status + "->" + newState);
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-
+                    // if someone connects then we should stop BLE adv here
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-
+                    // maybe need to clean up staff
                 }
 
             }
@@ -175,6 +185,10 @@ class HandOverGattServer {
         };
 
         Log.d(TAG,context.getString(R.string.ble_initialized));
+    }
+
+    private void setCharacteristicDataField(BluetoothGattCharacteristic characteristic) {
+
     }
 
     /** check if BLE Supported device */

@@ -35,6 +35,7 @@ public class HandOverService extends Service {
     private HandOverGattServer gattServer;
     private HandOverGatt bluetoothGatt;
 
+    //ACTION_SCREEN receiver which tiggers to discover HandOver GATT service
     private BroadcastReceiver screenStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -53,6 +54,7 @@ public class HandOverService extends Service {
         }
     };
 
+    // 
     private IHandOverService.Stub stub = new IHandOverService.Stub() {
 
         @Override

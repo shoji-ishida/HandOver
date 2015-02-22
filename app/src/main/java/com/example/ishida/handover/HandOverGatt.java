@@ -130,7 +130,7 @@ public class HandOverGatt {
     }
 
     public void connectGatt(final BluetoothDevice device) {
-        Log.d(TAG, "Connecting to " + device.getAddress());
+        Log.d(TAG, "Connecting to " + device.getAddress() + ":" + device.getName());
         bluetoothGatt = device.connectGatt(context, false, gattCallback);
     }
 
