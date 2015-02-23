@@ -56,6 +56,7 @@ public class HandOverGatt {
                 Log.d(TAG, "onConnectionStateChange: " + status + "->" + newState);
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.i(TAG, "Connected to GATT server.");
+                    //gatt.requestMtu(256);
                     gatt.discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     Log.i(TAG, "Disconnected from GATT server.");
@@ -115,6 +116,15 @@ public class HandOverGatt {
             @Override
             public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
                 Log.d(TAG, "onCharacteristicChanged: ");
+            }
+
+            @Override
+            public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
+                if (status == BluetoothGatt.GATT_SUCCESS) {
+                    Log.d(TAG, "Mtu is set to " + mtu);
+                } else {
+                    Log.d(TAG, "Failed to set Mtu to " + mtu);
+                }
             }
         };
     }

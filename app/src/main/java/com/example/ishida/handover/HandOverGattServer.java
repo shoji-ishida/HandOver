@@ -14,10 +14,14 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -27,16 +31,27 @@ class HandOverGattServer {
     private static final String TAG = HandOverGattServer.class.getSimpleName();
 
     static final UUID service_uuid = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
-    static final UUID field1_characteristic_uuid = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb");
-    static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb");
-    static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb");
+    static final UUID field1_characteristic_uuid = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"); // activity or name of dictionary
+    static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb"); // data type
+    static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb"); // data
 
     enum DataType {
-        BOOLEAN,
-        SHORT,
-        INT,
-        LONG,
-        STRING,
+        UNKNOWN(0),
+        BOOLEAN(1),
+        SHORT(2),
+        INT(3),
+        LONG(4),
+        STRING(5);
+
+        private final int id;
+
+        private DataType(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
 
@@ -48,6 +63,9 @@ class HandOverGattServer {
     private Context context;
     private String activityName;
     private Map<String, Object> dictionary;
+    private Set<String> keySet = null;
+    private Iterator<String> iterator = null;
+    private String dictKey;
 
 
     public HandOverGattServer(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
@@ -155,6 +173,41 @@ class HandOverGattServer {
                 }
             }
 
+            public void onCharacteristicReadRequest2(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+                Log.d(TAG, "onCharacteristicReadRequest: requestId=" + requestId + " offset=" + offset);
+                Log.d(TAG, "uuid: " + characteristic.getUuid().toString());
+                if (characteristic.getUuid().equals(field1_characteristic_uuid)) {
+                    Log.d(TAG, device.getName() + " is reading characteristic field1");
+                    if (keySet == null ) { // we should return activity here
+                        Log.d(TAG, "Set activity: " + activityName);
+                        characteristic.setValue(activityName);
+                        keySet = dictionary.keySet();
+                        iterator = keySet.iterator();
+                    } else {
+                        if (iterator.hasNext()) { // there's more entry
+                            dictKey = iterator.next();
+                            Log.d(TAG, "Set entry name: " + dictKey);
+                            characteristic.setValue(dictKey);
+                        } else { // all entry in dictionary is sent
+                            Log.d(TAG, "Set DONE");
+                            characteristic.setValue("DONE");
+                        }
+                    }
+                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                } else if (characteristic.getUuid().equals(field2_characteristic_uuid)) {
+                    Log.d(TAG, device.getName() + " is reading characteristic field2");
+                    Object obj = dictionary.get(dictKey);
+                    Log.d(TAG, "Set object type: " + obj.getClass().getName());
+                    int i = getDataType(obj).getId();
+                    characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                } else if (characteristic.getUuid().equals(field3_characteristic_uuid)) {
+                    Log.d(TAG, device.getName() + " is reading characteristic field3");
+                    setCharacteristicDataField(characteristic);
+                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                }
+            }
+
             @Override
             public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId, BluetoothGattCharacteristic characteristic, boolean preparedWrite, boolean responseNeeded, int offset, byte[] value) {
                 Log.d(TAG, "onCharacteristicWriteRequest: requestId=" + requestId + " preparedWrite="
@@ -188,7 +241,51 @@ class HandOverGattServer {
     }
 
     private void setCharacteristicDataField(BluetoothGattCharacteristic characteristic) {
+        Object obj = dictionary.get(dictKey);
+        switch (getDataType(obj)) {
+            case BOOLEAN:
+                boolean bool = (boolean)obj;
+                Log.d(TAG, Boolean.toString(bool));
+                int i = bool ? 1 : 0;
+                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                break;
+            case SHORT:
+                short s = (short)obj;
+                Log.d(TAG, Short.toString(s));
+                characteristic.setValue(s, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+                break;
+            case INT:
+                i = (int)obj;
+                Log.d(TAG, Integer.toString(i));
+                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                break;
+            case LONG:
+                Log.d(TAG, "Long not supported yet");
+                break;
+            case STRING:
+                String str = (String)obj;
+                Log.d(TAG, str);
+                characteristic.setValue(str);
+                break;
+            default:
+                Log.d(TAG, "Error! Something going wrong data object type mismatch");
+        }
+    }
 
+    private DataType getDataType(Object obj) {
+        DataType ret = DataType.UNKNOWN;
+        if (obj instanceof Boolean) {
+            ret = DataType.BOOLEAN;
+        } else if (obj instanceof Short) {
+            ret = DataType.SHORT;
+        } else if (obj instanceof  Integer) {
+            ret = DataType.INT;
+        } else if (obj instanceof Long) {
+            ret = DataType.LONG;
+        } else if (obj instanceof String) {
+            ret = DataType.STRING;
+        }
+        return ret;
     }
 
     /** check if BLE Supported device */
