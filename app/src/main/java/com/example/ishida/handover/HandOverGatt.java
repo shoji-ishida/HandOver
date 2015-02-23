@@ -23,8 +23,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -39,7 +41,11 @@ public class HandOverGatt {
     private BluetoothGattCallback gattCallback;
     private Context context;
     private String activityName;
+    private boolean activityNameRead = false;
     Map<String, Object> dictionary = new HashMap<String, Object>();
+
+    private String fieldName;
+    private HandOverGattServer.DataType fieldDataType;
 
     public HandOverGatt(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
         this.context = context;
@@ -86,6 +92,7 @@ public class HandOverGatt {
                 }
             }
 
+            /*
             @Override
             public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                 Log.d(TAG, "onCharacteristicRead: ");
@@ -105,6 +112,36 @@ public class HandOverGatt {
                     Log.d(TAG, Boolean.valueOf(sw).toString());
                     dictionary.put("switch", sw);
                     postNotification();
+                }
+            }
+            */
+
+            @Override
+            public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+                Log.d(TAG, "onCharacteristicRead: ");
+                if (characteristic.getUuid().equals(HandOverGattServer.field1_characteristic_uuid)) {
+                    String str = characteristic.getStringValue(0);
+                    if (str.equals("DONE")) {
+                        postNotification();
+                        return;
+                    }
+                    if (!activityNameRead) {
+                        Log.d(TAG, "activityName = " + str);
+                        activityName = str;
+                        activityNameRead = true;
+                        readCharacteristics(gatt, HandOverGattServer.field1_characteristic_uuid);
+                    } else {
+                        Log.d(TAG, "Field name = " + str);
+                        fieldName = str;
+                        readCharacteristics(gatt, HandOverGattServer.field2_characteristic_uuid);
+                    }
+                } else if (characteristic.getUuid().equals(HandOverGattServer.field2_characteristic_uuid)) {
+                    Integer i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                    fieldDataType = HandOverGattServer.DataType.valueOf(i);
+                    readCharacteristics(gatt, HandOverGattServer.field3_characteristic_uuid);
+                } else if (characteristic.getUuid().equals(HandOverGattServer.field3_characteristic_uuid)) {
+                    readCharacteristicDataField(characteristic);
+                    readCharacteristics(gatt, HandOverGattServer.field1_characteristic_uuid);
                 }
             }
 
@@ -136,6 +173,42 @@ public class HandOverGatt {
             if (characteristic != null) {
                 gatt.readCharacteristic(characteristic);
             }
+        }
+    }
+
+    private void readCharacteristicDataField(BluetoothGattCharacteristic characteristic) {
+        Object obj = null;
+        switch (fieldDataType) {
+            case BOOLEAN:
+                Integer i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                boolean bool = (i.intValue() == 1) ? true : false;
+                Log.d(TAG, fieldName + "=" + Boolean.toString(bool));
+                obj = bool;
+                break;
+            case SHORT:
+                i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+                short s = i.shortValue();
+                Log.d(TAG, fieldName + "=" + s);
+                obj = s;
+                break;
+            case INT:
+                i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                Log.d(TAG, fieldName + "=" + i);
+                obj = (int)i;
+                break;
+            case LONG:
+                Log.d(TAG, "Long not supported yet");
+                break;
+            case STRING:
+                obj = characteristic.getStringValue(0);
+                Log.d(TAG, fieldName + "=" + obj);
+                break;
+            case UNKNOWN:
+            default:
+                Log.d(TAG, "Error! Something going wrong data object type mismatch");
+        }
+        if (obj != null) {
+            dictionary.put(fieldName, obj);
         }
     }
 
@@ -196,8 +269,8 @@ public class HandOverGatt {
                         .setSmallIcon(R.drawable.ic_launcher)
                         .setAutoCancel(true)
                         .setSound(uri)
-                        .setContentTitle("HandOver")
-                        .setContentText("タップで起動");
+                        .setContentTitle("HandOver from " + bluetoothGatt.getDevice().getName())
+                        .setContentText("Launch " + activityName); // should replace with App label
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

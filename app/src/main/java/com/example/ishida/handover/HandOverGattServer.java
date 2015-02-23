@@ -52,6 +52,17 @@ class HandOverGattServer {
         public int getId() {
             return id;
         }
+
+        public static DataType valueOf(int id) {
+            // values() で、列挙したオブジェクトをすべて持つ配列が得られる
+            for (DataType num : values()) {
+                if (num.getId() == id) { // id が一致するものを探す
+                    return num;
+                }
+            }
+
+            return UNKNOWN;
+        }
     }
 
 
@@ -149,6 +160,7 @@ class HandOverGattServer {
 
             }
 
+            /*
             @Override
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 Log.d(TAG, "onCharacteristicReadRequest: requestId=" + requestId + " offset=" + offset);
@@ -172,8 +184,10 @@ class HandOverGattServer {
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 }
             }
+            */
 
-            public void onCharacteristicReadRequest2(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
+            @Override
+            public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 Log.d(TAG, "onCharacteristicReadRequest: requestId=" + requestId + " offset=" + offset);
                 Log.d(TAG, "uuid: " + characteristic.getUuid().toString());
                 if (characteristic.getUuid().equals(field1_characteristic_uuid)) {
@@ -191,6 +205,8 @@ class HandOverGattServer {
                         } else { // all entry in dictionary is sent
                             Log.d(TAG, "Set DONE");
                             characteristic.setValue("DONE");
+                            keySet = null;
+                            iterator = null;
                         }
                     }
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
