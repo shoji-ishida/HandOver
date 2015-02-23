@@ -2,21 +2,43 @@ package com.example.ishida.handover;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
 
-public class MapsActivity extends FragmentActivity {
+import java.util.Map;
+
+public class MapsActivity extends FragmentActivity implements HandOverCallback, GoogleMap.OnCameraChangeListener, GoogleMap.OnMapLoadedCallback {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+    private HandOver ho;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        ho = HandOver.getHandOver(this);
+        ho.registerCallback(this);
+
+        String action = getIntent().getAction();
+        if (action.equals("com.example.ishida.handover.RECOVER")) {
+            ho.restore();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ho.unbind();
     }
 
     @Override
@@ -61,5 +83,53 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        mMap.setOnCameraChangeListener(this);
+        //mMap.setOnMapLoadedCallback(this);
     }
+
+    @Override
+    public void onCameraChange(CameraPosition position) {
+        // TODO Auto-generated method stub
+        // カメラ位置変更時の処理を実装
+        //Projection proj = mMap.getProjection();
+        //VisibleRegion vRegion = proj.getVisibleRegion();
+        // 北東 = top/right, 南西 = bottom/left
+        //double topLatitude = vRegion.latLngBounds.northeast.latitude;
+        //double bottomLatitude = vRegion.latLngBounds.southwest.latitude;
+        //double leftLongitude = vRegion.latLngBounds.southwest.longitude;
+        //double rightLongitude = vRegion.latLngBounds.northeast.longitude;
+        //Toast.makeText(this, "地図表示範囲\n緯度:" + bottomLatitude + "～" + topLatitude +
+        //        "\n経度:" + leftLongitude + "～" + rightLongitude , Toast.LENGTH_LONG).show();
+        ho.activityChanged();
+    }
+
+    @Override
+    public void onMapLoaded() {
+        Toast.makeText(this, "地図の描画完", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void saveActivity(Map<String, Object> dictionary) {
+        CameraPosition cameraPos = mMap.getCameraPosition();
+        float zoom = cameraPos.zoom;
+        double longitude = cameraPos.target.longitude;
+        double latitude = cameraPos.target.latitude;
+
+        dictionary.put("zoom", zoom);
+        dictionary.put("longitude", longitude);
+        dictionary.put("latitude", latitude);
+    }
+
+    @Override
+    public void restoreActivity(Map<String, Object> dictionary) {
+        float zoom = (float)dictionary.get("zoom");
+        double longitude = (double)dictionary.get("longitude");
+        double latitude = (double)dictionary.get("latitude");
+
+        CameraPosition cameraPos = new CameraPosition.Builder()
+        .target(new LatLng(latitude, longitude)).zoom(zoom)
+        .bearing(0).build();
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos));
+    }
+
 }
