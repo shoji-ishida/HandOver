@@ -7,5 +7,6 @@
     <string name="ble_not_supported">BLE is not supported on this device.</string>
     <string name="bt_unavailable">Bluetooth is unavailable.</string>
     <string name="ble_initialized">BLE has been sucessfuly initialized.</string>
+    <string name="title_activity_maps">HandOver Map</string>
 
 </resources>
