@@ -143,7 +143,7 @@ public class HandOverService extends Service {
     void gattServerReady() {
         if (callback != null) {
             try {
-                Log.d(TAG, Thread.currentThread().toString());
+                Log.d(TAG, "gattServerReady: " + Thread.currentThread().toString());
                 callback.handleHandOver();
             } catch (RemoteException e) {
                 e.printStackTrace();
