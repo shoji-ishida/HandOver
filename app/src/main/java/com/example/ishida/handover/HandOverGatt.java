@@ -203,6 +203,13 @@ public class HandOverGatt {
                 obj = characteristic.getStringValue(0);
                 Log.d(TAG, fieldName + "=" + obj);
                 break;
+            case FLOAT:
+                i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                Float f = Float.intBitsToFloat(i);
+                obj = f.floatValue();
+                break;
+            case DOUBLE:
+                break;
             case UNKNOWN:
             default:
                 Log.d(TAG, "Error! Something going wrong data object type mismatch");

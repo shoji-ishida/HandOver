@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate");
+        Log.d(TAG, Thread.currentThread().toString());
 
         editText = (EditText)findViewById(R.id.editText);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {

@@ -14,6 +14,7 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
@@ -41,7 +42,9 @@ class HandOverGattServer {
         SHORT(2),
         INT(3),
         LONG(4),
-        STRING(5);
+        FLOAT(5),
+        DOUBLE(6),
+        STRING(7);
 
         private final int id;
 
@@ -77,10 +80,12 @@ class HandOverGattServer {
     private Set<String> keySet = null;
     private Iterator<String> iterator = null;
     private String dictKey;
+    private Handler handler;
 
 
     public HandOverGattServer(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
         this.context = context;
+        this.handler = new Handler(context.getMainLooper());
         this.bTManager = manager;
         this.bTAdapter = adapter;
 
@@ -283,6 +288,15 @@ class HandOverGattServer {
                 Log.d(TAG, str);
                 characteristic.setValue(str);
                 break;
+            case FLOAT:
+                float f = (float)obj;
+                Log.d(TAG, Float.toString(f));
+                i = Float.floatToIntBits(f);
+                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                break;
+            case DOUBLE:
+                Log.d(TAG, "Double not supported yet");
+                break;
             default:
                 Log.d(TAG, "Error! Something going wrong data object type mismatch");
         }
@@ -300,6 +314,10 @@ class HandOverGattServer {
             ret = DataType.LONG;
         } else if (obj instanceof String) {
             ret = DataType.STRING;
+        } else if (obj instanceof Float) {
+            ret = DataType.FLOAT;
+        } else if (obj instanceof Double) {
+            ret = DataType.DOUBLE;
         }
         return ret;
     }

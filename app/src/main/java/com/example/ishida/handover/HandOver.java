@@ -6,8 +6,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import java.util.Map;
  * Created by ishida on 2015/02/16.
  */
 public class HandOver {
+    private static final String TAG = "HandOver";
+    private static final String HANDOVER_SERVICE = "com.example.ishida.handover.HandOverService";
     public static HandOver getHandOver(Activity activity) {
         return new HandOver(activity);
     }
@@ -33,13 +37,15 @@ public class HandOver {
     }
 
     public void activityChanged() {
+        Log.d(TAG, "activityChanged");
+        Log.d(TAG, Thread.currentThread().toString());
         if (handOverService == null) { // bind to service first
             Intent intent = new Intent(activity, HandOverService.class);
             activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
             needToSave = true;
         } else {
+            needToSave = false;
             try {
-                needToSave = false;
                 handOverService.activityChanged();
             } catch (RemoteException e) {
                 e.printStackTrace();

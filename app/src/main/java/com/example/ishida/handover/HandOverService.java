@@ -129,11 +129,13 @@ public class HandOverService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: " + intent);
         return stub;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind: " + intent);
         // should clean up gatt server
         return super.onUnbind(intent);
     }
@@ -141,6 +143,7 @@ public class HandOverService extends Service {
     void gattServerReady() {
         if (callback != null) {
             try {
+                Log.d(TAG, Thread.currentThread().toString());
                 callback.handleHandOver();
             } catch (RemoteException e) {
                 e.printStackTrace();
