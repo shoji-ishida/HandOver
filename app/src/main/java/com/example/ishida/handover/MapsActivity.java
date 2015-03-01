@@ -123,8 +123,10 @@ public class MapsActivity extends FragmentActivity implements HandOverCallback, 
     @Override
     public void restoreActivity(Map<String, Object> dictionary) {
         float zoom = (float)dictionary.get("zoom");
-        double longitude = (double)dictionary.get("longitude");
-        double latitude = (double)dictionary.get("latitude");
+        float f = (float)dictionary.get("longitude");
+        double longitude = f;
+        f = (float)dictionary.get("latitude");
+        double latitude = f;
 
         CameraPosition cameraPos = new CameraPosition.Builder()
         .target(new LatLng(latitude, longitude)).zoom(zoom)

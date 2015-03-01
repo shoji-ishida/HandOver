@@ -19,7 +19,9 @@ import java.util.Map;
  */
 public class HandOver {
     private static final String TAG = "HandOver";
-    private static final String HANDOVER_SERVICE = "com.example.ishida.handover.HandOverService";
+    public static final String HANDOVER_PACKAGE = "com.example.ishida.handover";
+    public static final String HANDOVER_SERVICE = HANDOVER_PACKAGE + ".HandOverService";
+
     public static HandOver getHandOver(Activity activity) {
         return new HandOver(activity);
     }
@@ -40,8 +42,7 @@ public class HandOver {
         Log.d(TAG, "activityChanged");
         Log.d(TAG, Thread.currentThread().toString());
         if (handOverService == null) { // bind to service first
-            Intent intent = new Intent(activity, HandOverService.class);
-            activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+            bind();
             needToSave = true;
         } else {
             needToSave = false;
@@ -55,8 +56,7 @@ public class HandOver {
 
     public void restore() {
         if (handOverService == null) { // bind to service first
-            Intent intent = new Intent(activity, HandOverService.class);
-            activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+            bind();
             needToRestore = true;
         } else if (callback != null) {
             try {
@@ -72,8 +72,22 @@ public class HandOver {
         this.callback = callback;
     }
 
+    public void bind() {
+        Log.d(TAG, "bind");
+        Log.d(TAG, Thread.currentThread().toString());
+
+        Intent intent = new Intent();
+        intent.setClassName(HANDOVER_PACKAGE, HANDOVER_SERVICE);
+        activity.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
     public void unbind() {
         if (handOverService != null) {
+            try {
+                handOverService.unregisterCallback(handOverCallback);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             activity.unbindService(serviceConnection);
         }
     }
@@ -84,7 +98,7 @@ public class HandOver {
             if (callback != null) {
                 dictionary.clear();
                 callback.saveActivity(dictionary);
-                handOverService.handOver(activity.getComponentName().getClassName(), dictionary);
+                handOverService.handOver(activity.getComponentName(), dictionary);
             }
         }
 
@@ -100,13 +114,17 @@ public class HandOver {
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "onServiceConnected: " + name);
+
             handOverService = IHandOverService.Stub.asInterface(service);
             try {
                 handOverService.registerCallback(handOverCallback);
+                /*
                 if (needToSave) {
                     needToSave = false;
                     handOverService.activityChanged();
                 }
+                */
                 if (needToRestore) {
                     needToRestore = false;
                     restore();
@@ -119,6 +137,7 @@ public class HandOver {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+            Log.d(TAG, "onServiceDisconnected: " + name);
             try {
                 handOverService.unregisterCallback(handOverCallback);
             } catch (RemoteException e) {

@@ -12,6 +12,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Handler;
@@ -75,25 +76,24 @@ class HandOverGattServer {
     private BluetoothAdapter bTAdapter;
     private BluetoothGattServer gattServer;
     private Context context;
-    private String activityName;
+    private ComponentName componentName;
     private Map<String, Object> dictionary;
     private Set<String> keySet = null;
     private Iterator<String> iterator = null;
     private String dictKey;
-    private Handler handler;
+    private boolean activityNameSent = false;
 
 
     public HandOverGattServer(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
         this.context = context;
-        this.handler = new Handler(context.getMainLooper());
         this.bTManager = manager;
         this.bTAdapter = adapter;
 
         init();
     }
 
-    public void setData(String activity, Map<String, Object> map) {
-        this.activityName = activity;
+    public void setData(ComponentName componentName, Map<String, Object> map) {
+        this.componentName = componentName;
         this.dictionary = map;
     }
 
@@ -198,10 +198,18 @@ class HandOverGattServer {
                 if (characteristic.getUuid().equals(field1_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field1");
                     if (keySet == null ) { // we should return activity here
-                        Log.d(TAG, "Set activity: " + activityName);
-                        characteristic.setValue(activityName);
-                        keySet = dictionary.keySet();
-                        iterator = keySet.iterator();
+                        if (!activityNameSent) {
+                            String activityName = componentName.getClassName();
+                            Log.d(TAG, "Set activity: " + activityName);
+                            characteristic.setValue(activityName);
+                            activityNameSent = true;
+                        } else {
+                            String packageName = componentName.getPackageName();
+                            Log.d(TAG, "Set package: " + packageName);
+                            characteristic.setValue(packageName);
+                            keySet = dictionary.keySet();
+                            iterator = keySet.iterator();
+                        }
                     } else {
                         if (iterator.hasNext()) { // there's more entry
                             dictKey = iterator.next();
@@ -212,6 +220,7 @@ class HandOverGattServer {
                             characteristic.setValue("DONE");
                             keySet = null;
                             iterator = null;
+                            activityNameSent = false;
                         }
                     }
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());

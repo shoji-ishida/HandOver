@@ -41,7 +41,10 @@ public class HandOverGatt {
     private BluetoothGattCallback gattCallback;
     private Context context;
     private String activityName;
+    private String packageName;
     private boolean activityNameRead = false;
+    private boolean packageNameRead = false;
+
     Map<String, Object> dictionary = new HashMap<String, Object>();
 
     private String fieldName;
@@ -122,6 +125,7 @@ public class HandOverGatt {
                 if (characteristic.getUuid().equals(HandOverGattServer.field1_characteristic_uuid)) {
                     String str = characteristic.getStringValue(0);
                     if (str.equals("DONE")) {
+                        activityNameRead = packageNameRead = false;
                         postNotification();
                         return;
                     }
@@ -129,6 +133,11 @@ public class HandOverGatt {
                         Log.d(TAG, "activityName = " + str);
                         activityName = str;
                         activityNameRead = true;
+                        readCharacteristics(gatt, HandOverGattServer.field1_characteristic_uuid);
+                    } else if (!packageNameRead) {
+                        Log.d(TAG, "packageName = " + str);
+                        packageName = str;
+                        packageNameRead = true;
                         readCharacteristics(gatt, HandOverGattServer.field1_characteristic_uuid);
                     } else {
                         Log.d(TAG, "Field name = " + str);
@@ -235,7 +244,7 @@ public class HandOverGatt {
         // Creates an explicit intent for an Activity in your app
 
         Intent resultIntent = new Intent();
-        resultIntent.setClassName(context, activityName);
+        resultIntent.setClassName(packageName, activityName);
         resultIntent.setAction("com.example.ishida.handover.RECOVER");
 
         // see if a target app is foreground

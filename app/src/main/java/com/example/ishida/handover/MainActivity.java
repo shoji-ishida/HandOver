@@ -108,13 +108,13 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     protected void onStop() {
         super.onStop();
         Log.d(TAG, "onStop");
+        ho.unbind();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        ho.unbind();
     }
 
     @Override
@@ -133,6 +133,7 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
+        ho.bind();
     }
 
     @Override

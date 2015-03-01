@@ -5,10 +5,14 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -35,6 +39,8 @@ public class HandOverService extends Service {
     private HandOverGattServer gattServer;
     private HandOverGatt bluetoothGatt;
 
+    private RemoteCallbackList<IHandOverCallback> remoteCallbackList = new RemoteCallbackList<IHandOverCallback>();
+
     //ACTION_SCREEN receiver which tiggers to discover HandOver GATT service
     private BroadcastReceiver screenStatusReceiver = new BroadcastReceiver() {
         @Override
@@ -59,21 +65,24 @@ public class HandOverService extends Service {
 
         @Override
         public void registerCallback(IHandOverCallback callback) throws RemoteException {
+            Log.d(TAG, "A callback registered");
+            //HandOverService.this.remoteCallbackList.register(callback);
             HandOverService.this.callback = callback;
         }
 
         @Override
         public void unregisterCallback(IHandOverCallback callback) throws RemoteException {
-            if (callback != null && callback.equals(callback)) {
+            Log.d(TAG, "A callback unregistered");
+            //HandOverService.this.remoteCallbackList.unregister(callback);
+            if (HandOverService.this.callback.equals(callback)) {
                 HandOverService.this.callback = null;
             }
         }
 
         @Override
-        public void handOver(String activityName, Map dictionary) throws RemoteException {
-            Log.d(TAG, activityName + ": " + dictionary);
-            gattServer.setData(activityName, dictionary);
-
+        public void handOver(ComponentName componentName, Map dictionary) throws RemoteException {
+            Log.d(TAG, componentName + ": " + dictionary);
+            gattServer.setData(componentName, dictionary);
         }
 
         @Override
@@ -83,6 +92,7 @@ public class HandOverService extends Service {
                 gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
                 gattServer.startGattServer();
             } else { // gatt server already running
+                Log.d(TAG, "Gatt server is already running");
                 gattServerReady();
             }
         }
@@ -116,7 +126,7 @@ public class HandOverService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "start command");
+        Log.d(TAG, "start command:" + intent);
         return START_STICKY;
     }
 
@@ -137,6 +147,11 @@ public class HandOverService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind: " + intent);
         // should clean up gatt server
+        if (gattServer != null) {
+            gattServer.stopGattServer();
+            gattServer = null;
+        }
+
         return super.onUnbind(intent);
     }
 
@@ -150,6 +165,7 @@ public class HandOverService extends Service {
             }
         }
     }
+
 
     void restoreReady(Map<String, Object> dictionary) {
         if (callback != null) {
