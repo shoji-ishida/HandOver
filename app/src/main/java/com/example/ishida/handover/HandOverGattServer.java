@@ -35,7 +35,9 @@ class HandOverGattServer {
     static final UUID service_uuid = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
     static final UUID field1_characteristic_uuid = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"); // activity or name of dictionary
     static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb"); // data type
-    static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb"); // data
+    static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb"); // data Low
+    static final UUID field4_characteristic_uuid = UUID.fromString("00002a39-0000-1000-8000-00805f9b34fb"); // data Hi
+
 
     enum DataType {
         UNKNOWN(0),
@@ -82,7 +84,7 @@ class HandOverGattServer {
     private Iterator<String> iterator = null;
     private String dictKey;
     private boolean activityNameSent = false;
-
+    private int hi32bits;
 
     public HandOverGattServer(Context context, BluetoothManager manager, BluetoothAdapter adapter) {
         this.context = context;
@@ -235,6 +237,10 @@ class HandOverGattServer {
                     Log.d(TAG, device.getName() + " is reading characteristic field3");
                     setCharacteristicDataField(characteristic);
                     gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                } else if (characteristic.getUuid().equals(field4_characteristic_uuid)) {
+                    Log.d(TAG, device.getName() + " is reading characteristic field4");
+                    characteristic.setValue(hi32bits, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 }
             }
 
@@ -290,7 +296,12 @@ class HandOverGattServer {
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case LONG:
-                Log.d(TAG, "Long not supported yet");
+                Long l = (long)obj;
+                i = (int)(l & 0xffff);
+                int hi = (int)(l >> 32) & 0xffff;
+                hi32bits = hi;
+                Log.d(TAG, Long.toString(l) + " = " + hi + ":" + i);
+                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case STRING:
                 String str = (String)obj;
@@ -304,7 +315,14 @@ class HandOverGattServer {
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case DOUBLE:
-                Log.d(TAG, "Double not supported yet");
+                double d = (double)obj;
+                Log.d(TAG, Double.toString(d));
+                l = Double.doubleToLongBits(d);
+                i = (int)(l & 0xffff);
+                hi = (int)(l >> 32) & 0xffff;
+                hi32bits = hi;
+                Log.d(TAG, Double.toString(d) + " = " + hi + ":" + i);
+                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             default:
                 Log.d(TAG, "Error! Something going wrong data object type mismatch");
