@@ -149,7 +149,9 @@ public class HandOverGatt {
                     fieldDataType = HandOverGattServer.DataType.valueOf(i);
                     readCharacteristics(gatt, HandOverGattServer.field3_characteristic_uuid);
                 } else if (characteristic.getUuid().equals(HandOverGattServer.field3_characteristic_uuid)) {
-                    readCharacteristicDataField(characteristic);
+                    UUID uuid = readCharacteristicDataField(characteristic);
+                    readCharacteristics(gatt, uuid);
+                } else if (characteristic.getUuid().equals(HandOverGattServer.field4_characteristic_uuid)) {
                     readCharacteristics(gatt, HandOverGattServer.field1_characteristic_uuid);
                 }
             }
@@ -185,8 +187,9 @@ public class HandOverGatt {
         }
     }
 
-    private void readCharacteristicDataField(BluetoothGattCharacteristic characteristic) {
+    private UUID readCharacteristicDataField(BluetoothGattCharacteristic characteristic) {
         Object obj = null;
+        UUID uuid = HandOverGattServer.field1_characteristic_uuid;
         switch (fieldDataType) {
             case BOOLEAN:
                 Integer i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
@@ -206,7 +209,9 @@ public class HandOverGatt {
                 obj = (int)i;
                 break;
             case LONG:
+                i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 Log.d(TAG, "Long not supported yet");
+                uuid = HandOverGattServer.field4_characteristic_uuid;
                 break;
             case STRING:
                 obj = characteristic.getStringValue(0);
@@ -218,6 +223,8 @@ public class HandOverGatt {
                 obj = f.floatValue();
                 break;
             case DOUBLE:
+                i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                uuid = HandOverGattServer.field4_characteristic_uuid;
                 break;
             case UNKNOWN:
             default:
@@ -226,6 +233,7 @@ public class HandOverGatt {
         if (obj != null) {
             dictionary.put(fieldName, obj);
         }
+        return uuid;
     }
 
     public void connectGatt(final BluetoothDevice device) {
