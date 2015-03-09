@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +45,7 @@ public class HandOverGatt {
     private String packageName;
     private boolean activityNameRead = false;
     private boolean packageNameRead = false;
-    private long longValue;
+    private int longValue;
     private boolean longValueFlag = false;
 
     Map<String, Object> dictionary = new HashMap<String, Object>();
@@ -128,6 +129,7 @@ public class HandOverGatt {
                     String str = characteristic.getStringValue(0);
                     if (str.equals("DONE")) {
                         activityNameRead = packageNameRead = false;
+                        Log.d(TAG, "dictionary = " + dictionary);
                         postNotification();
                         return;
                     }
@@ -219,7 +221,13 @@ public class HandOverGatt {
                     uuid = HandOverGattServer.field4_characteristic_uuid;
                     longValueFlag = true;
                 } else { // high bits
-                    long l = (i << 32) & longValue;
+                    ByteBuffer bb = ByteBuffer.allocate(Long.SIZE);
+                    bb.putInt(i);
+                    bb.putInt(longValue);
+                    bb.rewind();
+
+                    long l = bb.getLong();
+                    Log.d(TAG, "Long value = " + l);
                     obj = l;
                     longValueFlag = false;
                 }
@@ -239,10 +247,17 @@ public class HandOverGatt {
                     longValue = i;
                     uuid = HandOverGattServer.field4_characteristic_uuid;
                     longValueFlag = true;
+                    //Log.d(TAG, "Double value lower bits " + Integer.toHexString(i));
                 } else { // high bits
-                    long l = (i << 32) & longValue;
-                    Double d = Double.longBitsToDouble(l);
-                    obj = d.doubleValue();
+                    //Log.d(TAG, "Double value higher bits " + Integer.toHexString(i));
+                    ByteBuffer bb = ByteBuffer.allocate(Double.SIZE);
+                    bb.putInt(i);
+                    bb.putInt(longValue);
+                    bb.rewind();
+
+                    double d = bb.getDouble();
+                    Log.d(TAG, "Double value = " + d);
+                    obj = d;
                     longValueFlag = false;
                 }
                 break;

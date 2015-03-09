@@ -296,11 +296,11 @@ class HandOverGattServer {
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case LONG:
-                Long l = (long)obj;
-                i = (int)(l & 0xffff);
-                int hi = (int)(l >> 32) & 0xffff;
+                long l = (long)obj;
+                i = (int)(l & 0xffffffff);
+                int hi = (int)(l >> 32) & 0xffffffff;
                 hi32bits = hi;
-                Log.d(TAG, Long.toString(l) + " = " + hi + ":" + i);
+                Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case STRING:
@@ -318,10 +318,10 @@ class HandOverGattServer {
                 double d = (double)obj;
                 Log.d(TAG, Double.toString(d));
                 l = Double.doubleToLongBits(d);
-                i = (int)(l & 0xffff);
-                hi = (int)(l >> 32) & 0xffff;
+                i = (int)(l & 0xffffffff);
+                hi = (int)(l >> 32) & 0xffffffff;
                 hi32bits = hi;
-                Log.d(TAG, Double.toString(d) + " = " + hi + ":" + i);
+                Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             default:
