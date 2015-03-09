@@ -44,6 +44,8 @@ public class HandOverGatt {
     private String packageName;
     private boolean activityNameRead = false;
     private boolean packageNameRead = false;
+    private long longValue;
+    private boolean longValueFlag = false;
 
     Map<String, Object> dictionary = new HashMap<String, Object>();
 
@@ -152,8 +154,8 @@ public class HandOverGatt {
                     UUID uuid = readCharacteristicDataField(characteristic);
                     readCharacteristics(gatt, uuid);
                 } else if (characteristic.getUuid().equals(HandOverGattServer.field4_characteristic_uuid)) {
-                    readCharacteristics(gatt, HandOverGattServer.field1_characteristic_uuid);
-                }
+                    UUID uuid = readCharacteristicDataField(characteristic);
+                    readCharacteristics(gatt, uuid);                }
             }
 
             @Override
@@ -183,6 +185,8 @@ public class HandOverGatt {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(uuid);
             if (characteristic != null) {
                 gatt.readCharacteristic(characteristic);
+            } else {
+                Log.d(TAG, "Specified UUID " + uuid.toString() + " does not exist");
             }
         }
     }
@@ -210,8 +214,15 @@ public class HandOverGatt {
                 break;
             case LONG:
                 i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                Log.d(TAG, "Long not supported yet");
-                uuid = HandOverGattServer.field4_characteristic_uuid;
+                if (!longValueFlag) { //Low bits
+                    longValue = i;
+                    uuid = HandOverGattServer.field4_characteristic_uuid;
+                    longValueFlag = true;
+                } else { // high bits
+                    long l = (i << 32) & longValue;
+                    obj = l;
+                    longValueFlag = false;
+                }
                 break;
             case STRING:
                 obj = characteristic.getStringValue(0);
@@ -224,7 +235,16 @@ public class HandOverGatt {
                 break;
             case DOUBLE:
                 i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                uuid = HandOverGattServer.field4_characteristic_uuid;
+                if (!longValueFlag) { //Low bits
+                    longValue = i;
+                    uuid = HandOverGattServer.field4_characteristic_uuid;
+                    longValueFlag = true;
+                } else { // high bits
+                    long l = (i << 32) & longValue;
+                    Double d = Double.longBitsToDouble(l);
+                    obj = d.doubleValue();
+                    longValueFlag = false;
+                }
                 break;
             case UNKNOWN:
             default:

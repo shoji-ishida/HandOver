@@ -376,9 +376,16 @@ class HandOverGattServer {
                 BluetoothGattCharacteristic.PERMISSION_READ
         );
 
+        BluetoothGattCharacteristic gc4 = new BluetoothGattCharacteristic(
+                field4_characteristic_uuid, BluetoothGattCharacteristic.PROPERTY_READ,
+                BluetoothGattCharacteristic.PERMISSION_READ
+        );
+
         gs.addCharacteristic(gc1);
         gs.addCharacteristic(gc2);
         gs.addCharacteristic(gc3);
+        gs.addCharacteristic(gc4);
+
         gattServer.addService(gs);
     }
 

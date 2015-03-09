@@ -172,6 +172,13 @@ public class MainActivity extends ActionBarActivity implements HandOverCallback 
         dictionary.put(EDIT_TEXT, editText.getText().toString());
         Log.d(TAG, "switch = " + sw.isChecked());
         dictionary.put(SWITCH, sw.isChecked());
+
+        //dictionary.put("LONG_MAX", Long.MAX_VALUE);
+        //dictionary.put("LONG_MIN", Long.MIN_VALUE);
+
+        //dictionary.put("DOUBLE_MAX", Double.MAX_VALUE);
+        //dictionary.put("DOUBLE_MIN", Double.MIN_VALUE);
+
     }
 
     @Override

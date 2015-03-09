@@ -27,7 +27,7 @@ public class HandOverService extends Service {
         "F0:6B:CA:35:96:EC", // Galaxy S4
         "50:A4:C8:93:5C:CE", // Galaxy S3
         //"18:E2:C2:7A:8F:7B", // Galaxy S3 GT-I9300
-        //"10:68:3F:E1:9E:E7", // Nexus 4
+        "10:68:3F:E1:9E:E7", // Nexus 4
 
     };
 
@@ -41,7 +41,7 @@ public class HandOverService extends Service {
 
     private RemoteCallbackList<IHandOverCallback> remoteCallbackList = new RemoteCallbackList<IHandOverCallback>();
 
-    //ACTION_SCREEN receiver which tiggers to discover HandOver GATT service
+    //ACTION_SCREEN receiver which triggers to discover HandOver GATT service
     private BroadcastReceiver screenStatusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
