@@ -15,7 +15,12 @@ import android.bluetooth.BluetoothProfile;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -67,7 +72,8 @@ public class HandOverGatt {
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 Log.d(TAG, "onConnectionStateChange: " + status + "->" + newState);
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.i(TAG, "Connected to GATT server.");
+                    Log.i(TAG, "Connected to GATT server." + gatt.getDevice().getName());
+                    bluetoothGatt = gatt;
                     //gatt.requestMtu(256);
                     gatt.discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -302,9 +308,17 @@ public class HandOverGatt {
         }
 
         Drawable icon = null;
-        CharSequence chars = null;
+        CharSequence label = null;
+        Bitmap bitmap = null;
         // Should add Icon and Label of activity to launch
-
+        try {
+            ApplicationInfo appInfo = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            icon = pm.getApplicationIcon(appInfo);
+            bitmap = drawableToBitmap(icon);
+            label = pm.getApplicationLabel(appInfo);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         // The stack builder object will contain an artificial back stack for the
         // started Activity.
@@ -326,10 +340,12 @@ public class HandOverGatt {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_launcher)
+                        .setLargeIcon(bitmap)
                         .setAutoCancel(true)
                         .setSound(uri)
+                        .setTicker("HandOver")
                         .setContentTitle("HandOver from " + bluetoothGatt.getDevice().getName())
-                        .setContentText("Launch " + activityName); // should replace with App label
+                        .setContentText("Launch " + label); // should replace with App label
         mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -351,5 +367,23 @@ public class HandOverGatt {
             }
         }
         return false;
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+        int width = drawable.getIntrinsicWidth();
+        width = width > 0 ? width : 1;
+        int height = drawable.getIntrinsicHeight();
+        height = height > 0 ? height : 1;
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
     }
 }
