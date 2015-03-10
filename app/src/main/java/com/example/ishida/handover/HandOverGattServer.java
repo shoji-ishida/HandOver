@@ -20,6 +20,7 @@ import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
@@ -281,18 +282,18 @@ class HandOverGattServer {
         switch (getDataType(obj)) {
             case BOOLEAN:
                 boolean bool = (boolean)obj;
-                Log.d(TAG, Boolean.toString(bool));
+                //Log.d(TAG, Boolean.toString(bool));
                 int i = bool ? 1 : 0;
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 break;
             case SHORT:
                 short s = (short)obj;
-                Log.d(TAG, Short.toString(s));
+                //Log.d(TAG, Short.toString(s));
                 characteristic.setValue(s, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
                 break;
             case INT:
                 i = (int)obj;
-                Log.d(TAG, Integer.toString(i));
+                //Log.d(TAG, Integer.toString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case LONG:
@@ -300,12 +301,12 @@ class HandOverGattServer {
                 i = (int)(l & 0xffffffff);
                 int hi = (int)(l >> 32) & 0xffffffff;
                 hi32bits = hi;
-                Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
+                //Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case STRING:
                 String str = (String)obj;
-                Log.d(TAG, str);
+                //Log.d(TAG, str);
                 characteristic.setValue(str);
                 break;
             case FLOAT:
@@ -316,12 +317,19 @@ class HandOverGattServer {
                 break;
             case DOUBLE:
                 double d = (double)obj;
-                Log.d(TAG, Double.toString(d));
-                l = Double.doubleToLongBits(d);
-                i = (int)(l & 0xffffffff);
-                hi = (int)(l >> 32) & 0xffffffff;
-                hi32bits = hi;
-                Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
+                ByteBuffer bb = ByteBuffer.allocate(Double.SIZE);
+                bb.putDouble(d);
+                bb.rewind();
+
+                hi32bits = bb.getInt();
+                i = bb.getInt();
+
+                //Log.d(TAG, Double.toString(d));
+                //l = Double.doubleToLongBits(d);
+                //i = (int)(l & 0xffffffff);
+                //hi = (int)(l >> 32) & 0xffffffff;
+                //hi32bits = hi;
+                //Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             default:

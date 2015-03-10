@@ -72,12 +72,12 @@ public class HandOverGatt {
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
                 Log.d(TAG, "onConnectionStateChange: " + status + "->" + newState);
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.i(TAG, "Connected to GATT server." + gatt.getDevice().getName());
+                    Log.i(TAG, "Connected to GATT server. " + gatt.getDevice().getName());
                     bluetoothGatt = gatt;
                     //gatt.requestMtu(256);
                     gatt.discoverServices();
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.i(TAG, "Disconnected from GATT server.");
+                    Log.i(TAG, "Disconnected from GATT server. " + gatt.getDevice().getName());
                 }
             }
 
