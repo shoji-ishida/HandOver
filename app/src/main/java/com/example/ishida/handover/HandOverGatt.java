@@ -339,7 +339,7 @@ public class HandOverGatt {
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(R.drawable.ic_stat_av_repeat)
                         .setLargeIcon(bitmap)
                         .setAutoCancel(true)
                         .setSound(uri)

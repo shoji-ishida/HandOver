@@ -30,6 +30,7 @@ public class HandOverService extends Service {
         //"18:E2:C2:7A:8F:7B", // Galaxy S3 GT-I9300
         "10:68:3F:E1:9E:E7", // Nexus 4
         "D8:50:E6:8C:84:F8", // Nexus 7
+        "63:24:E0:B4:4C:CE", // GEANEE
     };
 
     private BluetoothManager bTManager;
