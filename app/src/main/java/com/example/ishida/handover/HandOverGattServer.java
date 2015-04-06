@@ -198,6 +198,10 @@ class HandOverGattServer {
             public void onCharacteristicReadRequest(BluetoothDevice device, int requestId, int offset, BluetoothGattCharacteristic characteristic) {
                 Log.d(TAG, "onCharacteristicReadRequest: requestId=" + requestId + " offset=" + offset);
                 Log.d(TAG, "uuid: " + characteristic.getUuid().toString());
+                if (!characteristic.getService().getUuid().equals(service_uuid)) {
+                    Log.d(TAG, "Different service uuid ignored.");
+                    return;
+                }
                 if (characteristic.getUuid().equals(field1_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field1");
                     if (keySet == null ) { // we should return activity here

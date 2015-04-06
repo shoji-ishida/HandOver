@@ -137,6 +137,7 @@ public class HandOverGatt {
                         activityNameRead = packageNameRead = false;
                         Log.d(TAG, "dictionary = " + dictionary);
                         postNotification();
+                        gatt.close();
                         return;
                     }
                     if (!activityNameRead) {
