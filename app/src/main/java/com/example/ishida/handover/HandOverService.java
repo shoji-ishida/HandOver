@@ -23,7 +23,7 @@ public class HandOverService extends Service {
     private static final String TAG = HandOverService.class.getSimpleName();
 
     // assumes BT MAC addrs are exchanged wither by Nfc or BLE adv.
-    // must use capitial A-F
+    // must use capital A-F
     private static final String addrs[] = {
         "F0:6B:CA:35:96:EC", // Galaxy S4
         "50:A4:C8:93:5C:CE", // Galaxy S3

@@ -97,6 +97,9 @@ public class HandOverGatt {
                                 gatt.setCharacteristicNotification(characteristic, true);
                             }
                         }
+                    } else {
+                        gatt.disconnect();
+                        gatt.close();
                     }
 
                 } else {
@@ -137,6 +140,7 @@ public class HandOverGatt {
                         activityNameRead = packageNameRead = false;
                         Log.d(TAG, "dictionary = " + dictionary);
                         postNotification();
+                        gatt.disconnect();
                         gatt.close();
                         return;
                     }

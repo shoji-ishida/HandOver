@@ -78,6 +78,7 @@ class HandOverGattServer {
     private BluetoothManager bTManager;
     private BluetoothAdapter bTAdapter;
     private BluetoothGattServer gattServer;
+    private BluetoothGattService gattService;
     private Context context;
     private ComponentName componentName;
     private Map<String, Object> dictionary;
@@ -160,6 +161,7 @@ class HandOverGattServer {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     Log.d(TAG, "onServiceAdded: status=GATT_SUCCESS service="
                             + service.getUuid().toString());
+                    gattService = service;
                     // call callback here
                     ((HandOverService)context).gattServerReady();
                 } else {
@@ -410,7 +412,10 @@ class HandOverGattServer {
 
     public void stopGattServer() {
         if (gattServer != null) {
-            gattServer.clearServices();
+            if (gattService != null) {
+                gattServer.removeService(gattService);
+                gattService = null;
+            }
             gattServer.close();
             gattServer = null;
         }
