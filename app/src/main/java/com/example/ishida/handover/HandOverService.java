@@ -141,6 +141,11 @@ public class HandOverService extends Service {
         super.onDestroy();
         Log.d(TAG, "Destroyed");
         unregisterReceiver(screenStatusReceiver);
+        // should clean up gatt server
+        if (gattServer != null) {
+            gattServer.stopGattServer();
+            gattServer = null;
+        }
     }
 
     @Override
