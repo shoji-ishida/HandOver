@@ -133,7 +133,7 @@ public class HandOverGatt {
 
             @Override
             public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-                Log.d(TAG, "onCharacteristicRead: ");
+                //Log.d(TAG, "onCharacteristicRead: ");
                 if (characteristic.getUuid().equals(HandOverGattServer.field1_characteristic_uuid)) {
                     String str = characteristic.getStringValue(0);
                     if (str.equals("DONE")) {
@@ -162,6 +162,7 @@ public class HandOverGatt {
                 } else if (characteristic.getUuid().equals(HandOverGattServer.field2_characteristic_uuid)) {
                     Integer i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                     fieldDataType = HandOverGattServer.DataType.valueOf(i);
+                    Log.d(TAG, "fieldDataType = " + fieldDataType);
                     readCharacteristics(gatt, HandOverGattServer.field3_characteristic_uuid);
                 } else if (characteristic.getUuid().equals(HandOverGattServer.field3_characteristic_uuid)) {
                     UUID uuid = readCharacteristicDataField(characteristic);
@@ -201,6 +202,8 @@ public class HandOverGatt {
             } else {
                 Log.d(TAG, "Specified UUID " + uuid.toString() + " does not exist");
             }
+        } else {
+            Log.d(TAG, "Specified Service does not exist");
         }
     }
 
@@ -238,7 +241,7 @@ public class HandOverGatt {
                     bb.rewind();
 
                     long l = bb.getLong();
-                    Log.d(TAG, "Long value = " + l);
+                    Log.d(TAG, fieldName + "=" + l);
                     obj = l;
                     longValueFlag = false;
                 }
@@ -251,6 +254,7 @@ public class HandOverGatt {
                 i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 Float f = Float.intBitsToFloat(i);
                 obj = f.floatValue();
+                Log.d(TAG, fieldName + "=" + f);
                 break;
             case DOUBLE:
                 i = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
@@ -267,7 +271,7 @@ public class HandOverGatt {
                     bb.rewind();
 
                     double d = bb.getDouble();
-                    Log.d(TAG, "Double value = " + d);
+                    Log.d(TAG, fieldName + "=" + d);
                     obj = d;
                     longValueFlag = false;
                 }
@@ -289,6 +293,7 @@ public class HandOverGatt {
 
     public void closeGatt() {
         if (bluetoothGatt != null) {
+            Log.d(TAG, "Closing gatt " + bluetoothGatt);
             bluetoothGatt.close();
         }
     }

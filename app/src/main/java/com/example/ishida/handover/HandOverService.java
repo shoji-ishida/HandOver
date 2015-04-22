@@ -28,8 +28,8 @@ public class HandOverService extends Service {
         "F0:6B:CA:35:96:EC", // Galaxy S4
         "50:A4:C8:93:5C:CE", // Galaxy S3
         //"18:E2:C2:7A:8F:7B", // Galaxy S3 GT-I9300
-        "10:68:3F:E1:9E:E7", // Nexus 4
-        "D8:50:E6:8C:84:F8", // Nexus 7
+        //"10:68:3F:E1:9E:E7", // Nexus 4
+        //"D8:50:E6:8C:84:F8", // Nexus 7
     };
 
     private BluetoothManager bTManager;
@@ -39,6 +39,8 @@ public class HandOverService extends Service {
 
     private HandOverGattServer gattServer;
     private HandOverGatt bluetoothGatt;
+
+    private Handler handler;
 
     private RemoteCallbackList<IHandOverCallback> remoteCallbackList = new RemoteCallbackList<IHandOverCallback>();
 
@@ -120,6 +122,9 @@ public class HandOverService extends Service {
         // initialize
         bTManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         bTAdapter = bTManager.getAdapter();
+        gattServer = new HandOverGattServer(HandOverService.this, bTManager, bTAdapter);
+        gattServer.startGattServer();
+
         myAddr = bTAdapter.getAddress();
         Log.d(TAG, "MyAddr: " + myAddr);
         Log.d(TAG, "Initialized");
@@ -148,10 +153,10 @@ public class HandOverService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "onUnbind: " + intent);
         // should clean up gatt server
-        if (gattServer != null) {
-            gattServer.stopGattServer();
-            gattServer = null;
-        }
+        //if (gattServer != null) {
+        //    gattServer.stopGattServer();
+        //    gattServer = null;
+        //}
 
         return super.onUnbind(intent);
     }

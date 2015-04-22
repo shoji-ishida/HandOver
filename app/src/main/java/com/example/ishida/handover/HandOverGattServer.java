@@ -33,7 +33,7 @@ import java.util.UUID;
 class HandOverGattServer {
     private static final String TAG = HandOverGattServer.class.getSimpleName();
 
-    static final UUID service_uuid = UUID.fromString("00001802-0000-1000-8000-00805f9b34fb");
+    static final UUID service_uuid = UUID.fromString("0000180e-0000-1000-8000-00805f9b34fb");
     static final UUID field1_characteristic_uuid = UUID.fromString("00002a06-0000-1000-8000-00805f9b34fb"); // activity or name of dictionary
     static final UUID field2_characteristic_uuid = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb"); // data type
     static final UUID field3_characteristic_uuid = UUID.fromString("00002a29-0000-1000-8000-00805f9b34fb"); // data Low
@@ -161,9 +161,11 @@ class HandOverGattServer {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     Log.d(TAG, "onServiceAdded: status=GATT_SUCCESS service="
                             + service.getUuid().toString());
-                    gattService = service;
-                    // call callback here
-                    ((HandOverService)context).gattServerReady();
+                    if (service.getUuid().equals(service_uuid)) {
+                        gattService = service;
+                        // call callback here
+                        ((HandOverService) context).gattServerReady();
+                    }
                 } else {
                     Log.d(TAG, "onServiceAdded: status!=GATT_SUCCESS");
                 }
@@ -311,10 +313,6 @@ class HandOverGattServer {
                 hi32bits = bb.getInt();
                 i = bb.getInt();
 
-                //i = (int)(l & 0xffffffff);
-                //int hi = (int)(l >> 32) & 0xffffffff;
-                //hi32bits = hi;
-                //Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case STRING:
@@ -337,12 +335,6 @@ class HandOverGattServer {
                 hi32bits = bb.getInt();
                 i = bb.getInt();
 
-                //Log.d(TAG, Double.toString(d));
-                //l = Double.doubleToLongBits(d);
-                //i = (int)(l & 0xffffffff);
-                //hi = (int)(l >> 32) & 0xffffffff;
-                //hi32bits = hi;
-                //Log.d(TAG, Long.toHexString(l) + " = " + Integer.toHexString(hi) + ":" + Integer.toHexString(i));
                 characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             default:
