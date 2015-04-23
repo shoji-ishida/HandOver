@@ -91,13 +91,17 @@ public class HandOverGatt {
                         BluetoothGattCharacteristic characteristic = service.getCharacteristic(HandOverGattServer.field1_characteristic_uuid);
                         if (characteristic != null) {
                             Log.d(TAG, "Found Characteristic 1");
-                            gatt.readCharacteristic(characteristic);
+                            boolean ret = gatt.readCharacteristic(characteristic);
+                            if (!ret) {
+                                Log.d(TAG, "Reading characteristic failed: " + characteristic);
+                            }
                             int prop = characteristic.getProperties();
                             if ((prop | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                                 gatt.setCharacteristicNotification(characteristic, true);
                             }
                         }
                     } else {
+                        Log.d(TAG, "Closing Gatt");
                         gatt.disconnect();
                         gatt.close();
                     }
@@ -139,7 +143,10 @@ public class HandOverGatt {
                     if (str.equals("DONE")) {
                         activityNameRead = packageNameRead = false;
                         Log.d(TAG, "dictionary = " + dictionary);
-                        postNotification();
+                        if (packageName != null) {
+                            postNotification();
+                        }
+                        Log.d(TAG, "Closing Gatt");
                         gatt.disconnect();
                         gatt.close();
                         return;
@@ -198,7 +205,10 @@ public class HandOverGatt {
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(uuid);
             if (characteristic != null) {
-                gatt.readCharacteristic(characteristic);
+                boolean ret = gatt.readCharacteristic(characteristic);
+                if (!ret) {
+                    Log.d(TAG, "Reading characteristic failed: " + characteristic);
+                }
             } else {
                 Log.d(TAG, "Specified UUID " + uuid.toString() + " does not exist");
             }

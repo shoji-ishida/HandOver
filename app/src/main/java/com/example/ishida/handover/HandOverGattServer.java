@@ -208,6 +208,20 @@ class HandOverGattServer {
                 }
                 if (characteristic.getUuid().equals(field1_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field1");
+if (componentName == null) {
+                        Log.d(TAG, "none of Activity has attached yet ");
+    Log.d(TAG, "Set DONE");
+    characteristic.setValue("DONE");
+    keySet = null;
+    iterator = null;
+    activityNameSent = false;
+    componentName = null;
+    boolean ret = gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+    if (!ret) {
+        Log.d(TAG, "Failed to sendResponse: " + characteristic);
+    }
+    return;
+}
                     if (keySet == null ) { // we should return activity here
                         if (!activityNameSent) {
                             String activityName = componentName.getClassName();
@@ -232,24 +246,29 @@ class HandOverGattServer {
                             keySet = null;
                             iterator = null;
                             activityNameSent = false;
+                            componentName = null;
                         }
                     }
-                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                    //gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 } else if (characteristic.getUuid().equals(field2_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field2");
                     Object obj = dictionary.get(dictKey);
                     Log.d(TAG, "Set object type: " + obj.getClass().getName());
                     int i = getDataType(obj).getId();
                     characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                    //gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 } else if (characteristic.getUuid().equals(field3_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field3");
                     setCharacteristicDataField(characteristic);
-                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                    //gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
                 } else if (characteristic.getUuid().equals(field4_characteristic_uuid)) {
                     Log.d(TAG, device.getName() + " is reading characteristic field4");
                     characteristic.setValue(hi32bits, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-                    gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                    //gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                }
+                boolean ret = gattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, characteristic.getValue());
+                if (!ret) {
+                    Log.d(TAG, "Failed to sendResponse: " + characteristic);
                 }
             }
 
@@ -286,23 +305,24 @@ class HandOverGattServer {
     }
 
     private void setCharacteristicDataField(BluetoothGattCharacteristic characteristic) {
+        boolean ret = false;
         Object obj = dictionary.get(dictKey);
         switch (getDataType(obj)) {
             case BOOLEAN:
                 boolean bool = (boolean)obj;
                 //Log.d(TAG, Boolean.toString(bool));
                 int i = bool ? 1 : 0;
-                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                ret = characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                 break;
             case SHORT:
                 short s = (short)obj;
                 //Log.d(TAG, Short.toString(s));
-                characteristic.setValue(s, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
+                ret = characteristic.setValue(s, BluetoothGattCharacteristic.FORMAT_UINT16, 0);
                 break;
             case INT:
                 i = (int)obj;
                 //Log.d(TAG, Integer.toString(i));
-                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                ret = characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case LONG:
                 long l = (long)obj;
@@ -313,18 +333,18 @@ class HandOverGattServer {
                 hi32bits = bb.getInt();
                 i = bb.getInt();
 
-                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                ret = characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case STRING:
                 String str = (String)obj;
                 //Log.d(TAG, str);
-                characteristic.setValue(str);
+                ret = characteristic.setValue(str);
                 break;
             case FLOAT:
                 float f = (float)obj;
                 Log.d(TAG, Float.toString(f));
                 i = Float.floatToIntBits(f);
-                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                ret = characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             case DOUBLE:
                 double d = (double)obj;
@@ -335,10 +355,13 @@ class HandOverGattServer {
                 hi32bits = bb.getInt();
                 i = bb.getInt();
 
-                characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+                ret = characteristic.setValue(i, BluetoothGattCharacteristic.FORMAT_UINT32, 0);
                 break;
             default:
                 Log.d(TAG, "Error! Something going wrong data object type mismatch");
+        }
+        if (!ret) {
+            Log.d(TAG, "setValue failed");
         }
     }
 
