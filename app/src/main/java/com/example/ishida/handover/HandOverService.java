@@ -27,7 +27,7 @@ public class HandOverService extends Service {
     private static final String addrs[] = {
         "58:3F:54:4A:9F:B0", // Nexus 5
         "D4:0B:1A:16:89:91", // Nexus 9
-
+        //"0C:48:85:74:54:B9", // Nexus 5 sub
     };
 
     private BluetoothManager bTManager;
