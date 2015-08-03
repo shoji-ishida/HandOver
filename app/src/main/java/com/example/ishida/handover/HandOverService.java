@@ -25,11 +25,9 @@ public class HandOverService extends Service {
     // assumes BT MAC addrs are exchanged wither by Nfc or BLE adv.
     // must use capital A-F
     private static final String addrs[] = {
-        "F0:6B:CA:35:96:EC", // Galaxy S4
-        "50:A4:C8:93:5C:CE", // Galaxy S3
-        //"18:E2:C2:7A:8F:7B", // Galaxy S3 GT-I9300
-        //"10:68:3F:E1:9E:E7", // Nexus 4
-        //"D8:50:E6:8C:84:F8", // Nexus 7
+        "58:3F:54:4A:9F:B0", // Nexus 5
+        "D4:0B:1A:16:89:91", // Nexus 9
+
     };
 
     private BluetoothManager bTManager;
