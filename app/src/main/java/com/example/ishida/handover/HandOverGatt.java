@@ -91,13 +91,15 @@ public class HandOverGatt {
                         BluetoothGattCharacteristic characteristic = service.getCharacteristic(HandOverGattServer.field1_characteristic_uuid);
                         if (characteristic != null) {
                             Log.d(TAG, "Found Characteristic 1");
-                            boolean ret = gatt.readCharacteristic(characteristic);
-                            if (!ret) {
-                                Log.d(TAG, "Reading characteristic failed: " + characteristic);
-                            }
+
+                            // set notification if PROPERTY_NOTIFY
                             int prop = characteristic.getProperties();
                             if ((prop | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
                                 gatt.setCharacteristicNotification(characteristic, true);
+                            }
+                            boolean ret = gatt.readCharacteristic(characteristic);
+                            if (!ret) {
+                                Log.d(TAG, "Reading characteristic failed: " + characteristic);
                             }
                         }
                     } else {
