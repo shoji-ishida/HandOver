@@ -85,6 +85,10 @@ public class HandOverGatt {
             public void onServicesDiscovered(final BluetoothGatt gatt, int status) {
                 Log.d(TAG, "onServicesDiscovered: ");
                 if (status == BluetoothGatt.GATT_SUCCESS) {
+                    List<BluetoothGattService> services = gatt.getServices();
+                    for (BluetoothGattService s: services) {
+                        Log.d(TAG, s.toString());
+                    }
                     BluetoothGattService service = gatt.getService(HandOverGattServer.service_uuid);
                     if (service != null) {
                         Log.d(TAG, "Found HandOver service");
