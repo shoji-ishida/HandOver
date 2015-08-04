@@ -97,10 +97,10 @@ public class HandOverGatt {
                             Log.d(TAG, "Found Characteristic 1");
 
                             // set notification if PROPERTY_NOTIFY
-                            int prop = characteristic.getProperties();
-                            if ((prop | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                                gatt.setCharacteristicNotification(characteristic, true);
-                            }
+                            //int prop = characteristic.getProperties();
+                            //if ((prop | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            //    gatt.setCharacteristicNotification(characteristic, true);
+                            //}
                             boolean ret = gatt.readCharacteristic(characteristic);
                             if (!ret) {
                                 Log.d(TAG, "Reading characteristic failed: " + characteristic);
