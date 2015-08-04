@@ -87,7 +87,7 @@ public class HandOverGatt {
                 if (status == BluetoothGatt.GATT_SUCCESS) {
                     List<BluetoothGattService> services = gatt.getServices();
                     for (BluetoothGattService s: services) {
-                        Log.d(TAG, s.toString());
+                        Log.d(TAG, s.getUuid().toString());
                     }
                     BluetoothGattService service = gatt.getService(HandOverGattServer.service_uuid);
                     if (service != null) {
